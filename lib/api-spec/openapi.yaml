@@ -1,0 +1,476 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: github
+    description: GitHub repository analysis
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /github/validate:
+    post:
+      operationId: validateGithubRepo
+      tags: [github]
+      summary: Validate a GitHub repo URL or profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GithubUrlInput"
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GithubValidateResult"
+        "400":
+          description: Bad request
+
+  /github/repo-analysis:
+    post:
+      operationId: analyzeRepo
+      tags: [github]
+      summary: Analyze a GitHub repository structure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GithubRepoInput"
+      responses:
+        "200":
+          description: Repository analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepoAnalysis"
+        "400":
+          description: Bad request
+        "404":
+          description: Repository not found
+
+  /github/commit-analysis:
+    post:
+      operationId: analyzeCommits
+      tags: [github]
+      summary: Analyze commit history of a GitHub repository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GithubRepoInput"
+      responses:
+        "200":
+          description: Commit analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommitAnalysis"
+        "400":
+          description: Bad request
+        "404":
+          description: Repository not found
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    GithubUrlInput:
+      type: object
+      properties:
+        url:
+          type: string
+          description: GitHub profile or repo URL
+      required:
+        - url
+
+    GithubRepoInput:
+      type: object
+      properties:
+        owner:
+          type: string
+        repo:
+          type: string
+      required:
+        - owner
+        - repo
+
+    GithubValidateResult:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        owner:
+          type: string
+        repo:
+          type: string
+        type:
+          type: string
+          description: "profile or repo"
+        repos:
+          type: array
+          items:
+            $ref: "#/components/schemas/RepoSummary"
+        message:
+          type: string
+      required:
+        - valid
+
+    RepoSummary:
+      type: object
+      properties:
+        name:
+          type: string
+        fullName:
+          type: string
+        description:
+          type: string
+        language:
+          type: string
+        stars:
+          type: integer
+        forks:
+          type: integer
+        updatedAt:
+          type: string
+      required:
+        - name
+        - fullName
+
+    FolderNode:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+          description: "file or dir"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/FolderNode"
+        fileCount:
+          type: integer
+      required:
+        - name
+        - path
+        - type
+
+    Module:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        purpose:
+          type: string
+        fileCount:
+          type: integer
+      required:
+        - name
+        - path
+        - purpose
+
+    Dependency:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        category:
+          type: string
+          description: "framework, library, devDependency, etc."
+      required:
+        - name
+        - category
+
+    EntryPoint:
+      type: object
+      properties:
+        file:
+          type: string
+        purpose:
+          type: string
+      required:
+        - file
+        - purpose
+
+    ChurnFile:
+      type: object
+      properties:
+        file:
+          type: string
+        changes:
+          type: integer
+        reason:
+          type: string
+      required:
+        - file
+        - changes
+
+    RepoAnalysis:
+      type: object
+      properties:
+        owner:
+          type: string
+        repo:
+          type: string
+        mainIdea:
+          type: string
+        language:
+          type: string
+        stars:
+          type: integer
+        forks:
+          type: integer
+        folderHierarchy:
+          type: array
+          items:
+            $ref: "#/components/schemas/FolderNode"
+        modules:
+          type: array
+          items:
+            $ref: "#/components/schemas/Module"
+        dependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dependency"
+        frontendFiles:
+          type: integer
+        backendFiles:
+          type: integer
+        unknownFiles:
+          type: integer
+        frontendFolders:
+          type: array
+          items:
+            type: string
+        backendFolders:
+          type: array
+          items:
+            type: string
+        entryPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntryPoint"
+        highChurnFiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChurnFile"
+        evolvedFolders:
+          type: array
+          items:
+            type: string
+      required:
+        - owner
+        - repo
+        - mainIdea
+        - folderHierarchy
+        - modules
+        - dependencies
+        - entryPoints
+
+    CommitPhase:
+      type: object
+      properties:
+        phase:
+          type: integer
+        name:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        commitCount:
+          type: integer
+        dominantActivity:
+          type: string
+        description:
+          type: string
+        keyChanges:
+          type: array
+          items:
+            type: string
+      required:
+        - phase
+        - name
+        - startDate
+        - endDate
+        - commitCount
+        - dominantActivity
+        - description
+
+    FeatureCluster:
+      type: object
+      properties:
+        name:
+          type: string
+        commitCount:
+          type: integer
+        commits:
+          type: array
+          items:
+            type: string
+        files:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - commitCount
+
+    DevelopmentWave:
+      type: object
+      properties:
+        type:
+          type: string
+          description: "Feature, Fix, Refactor, Setup"
+        title:
+          type: string
+        period:
+          type: string
+        description:
+          type: string
+        commitCount:
+          type: integer
+      required:
+        - type
+        - title
+        - description
+
+    ContributorRole:
+      type: object
+      properties:
+        author:
+          type: string
+        role:
+          type: string
+        commitCount:
+          type: integer
+        focus:
+          type: string
+      required:
+        - author
+        - role
+        - commitCount
+
+    ArchitecturalEvent:
+      type: object
+      properties:
+        commitSha:
+          type: string
+        event:
+          type: string
+        impact:
+          type: string
+        description:
+          type: string
+      required:
+        - commitSha
+        - event
+        - impact
+
+    RiskCommit:
+      type: object
+      properties:
+        commitSha:
+          type: string
+        message:
+          type: string
+        riskLevel:
+          type: string
+        reason:
+          type: string
+      required:
+        - commitSha
+        - message
+        - riskLevel
+        - reason
+
+    CommitAnalysis:
+      type: object
+      properties:
+        owner:
+          type: string
+        repo:
+          type: string
+        totalCommits:
+          type: integer
+        contributors:
+          type: integer
+        startDate:
+          type: string
+        endDate:
+          type: string
+        executiveSummary:
+          type: string
+        phases:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommitPhase"
+        featureClusters:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeatureCluster"
+        developmentWaves:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevelopmentWave"
+        contributorRoles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContributorRole"
+        architecturalEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArchitecturalEvent"
+        riskCommits:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskCommit"
+        highChurnFiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChurnFile"
+      required:
+        - owner
+        - repo
+        - totalCommits
+        - executiveSummary
+        - phases
+        - featureClusters
+        - developmentWaves
+        - contributorRoles
