@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useRateStatus, RateLimitScreen } from "@/components/rate-limit-guard";
 import { AiAssistant } from "@/components/ai-assistant";
+import { NarrativeGenerator } from "@/components/narrative-generator";
 
 export default function RepoAnalysis() {
   const [, setLocation] = useLocation();
@@ -138,6 +139,7 @@ export default function RepoAnalysis() {
       { id: "separation", label: "Frontend / Backend", icon: Code, count: null, color: "cyan" },
       { id: "deps", label: "Dependencies", icon: Layers, count: data.dependencies?.length ?? 0, color: "purple" },
       { id: "entrypoints", label: "Entry Points", icon: GitBranch, count: data.entryPoints?.length ?? 0, color: "primary" },
+      { id: "narrative", label: "AI Narrative", icon: Sparkles, count: null, color: "violet" },
     ] as Array<{ id: string; label: string; icon: ElementType; count: number | null; color: string }>
   );
 
@@ -367,6 +369,31 @@ export default function RepoAnalysis() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* ── AI Narrative Generator ─────────────────────────── */}
+        {activeSection === "narrative" && owner && repo && (
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+              </div>
+              <h2 className="text-lg font-bold">AI Narrative Generator</h2>
+              <span className="text-xs text-muted-foreground ml-1">Converts repo data into human-readable content</span>
+            </div>
+            <NarrativeGenerator
+              owner={owner}
+              repo={repo}
+              context={{
+                type: "repo",
+                summary: data.aiSummary,
+                modules: data.modules?.map(m => `${m.name}: ${m.purpose}`),
+                dependencies: data.dependencies?.map(d => d.name),
+                language: data.language ?? undefined,
+                stars: data.stars,
+              }}
+            />
+          </div>
         )}
 
       </div>

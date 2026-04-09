@@ -3,6 +3,7 @@ import { useLocation, useSearch } from "wouter";
 import { useAnalyzeCommits, useExplainCommit } from "@workspace/api-client-react";
 import { useRateStatus, RateLimitScreen } from "@/components/rate-limit-guard";
 import { AiAssistant } from "@/components/ai-assistant";
+import { NarrativeGenerator } from "@/components/narrative-generator";
 import {
   ArrowLeft,
   Compass,
@@ -750,6 +751,7 @@ export default function CommitAnalysis() {
                   { id: "architectural", label: "Architectural Events", icon: Zap, count: data.architecturalEvents?.length ?? 0 },
                   { id: "risk", label: "High Risk Commits", icon: Shield, count: data.riskCommits?.length ?? 0, color: "red" },
                   { id: "churn", label: "High Churn Files", icon: FileCode, count: data.highChurnFiles?.length ?? 0, color: "rose" },
+                  { id: "narrative", label: "AI Narrative", icon: Sparkles, count: 0, color: "violet" },
                 ] as Array<{ id: string; label: string; icon: ElementType; count: number; color?: string }>
               ).map(({ id, label, icon: Icon, count, color }) => {
                 const isActive = activeSection === id;
@@ -1400,6 +1402,33 @@ export default function CommitAnalysis() {
                     ))}
                   </div>
                 </div>
+            )}
+
+            {/* AI Narrative Generator */}
+            {activeSection === "narrative" && (
+              <div data-testid="section-narrative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+                  </div>
+                  <h2 className="text-lg font-bold">AI Narrative Generator</h2>
+                  <span className="text-xs text-muted-foreground ml-1">Converts commit data into human-readable content</span>
+                </div>
+                <NarrativeGenerator
+                  owner={owner ?? ""}
+                  repo={repo ?? ""}
+                  context={{
+                    type: "commit",
+                    summary: data.aiSummary,
+                    phases: data.phases?.map(p => `${p.name}: ${p.description}`),
+                    features: data.featureClusters?.map(c => c.name),
+                    recentCommits: data.commitStories?.slice(0, 20).map(s => s.headline),
+                    architecturalEvents: data.architecturalEvents?.map(e => e.event),
+                    waves: data.developmentWaves?.map(w => w.name),
+                    totalCommits: data.totalCommits,
+                  }}
+                />
+              </div>
             )}
 
             {/* High Churn Files */}

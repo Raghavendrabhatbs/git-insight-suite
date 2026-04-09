@@ -1802,4 +1802,115 @@ router.post("/author-profile", async (req, res) => {
   }
 });
 
+// ── AI Narrative Generator ────────────────────────────────────────────────────
+router.post("/generate-narrative", async (req, res) => {
+  try {
+    const { owner, repo, mode, context } = req.body as {
+      owner: string;
+      repo: string;
+      mode: "release-notes" | "standup" | "portfolio";
+      context: {
+        type?: string;
+        summary?: string;
+        phases?: string[];
+        features?: string[];
+        recentCommits?: string[];
+        architecturalEvents?: string[];
+        modules?: string[];
+        dependencies?: string[];
+        language?: string;
+        stars?: number;
+        totalCommits?: number;
+        waves?: string[];
+      };
+    };
+
+    if (!owner || !repo || !mode) {
+      res.status(400).json({ error: "owner, repo, and mode are required" });
+      return;
+    }
+
+    const repoLabel = `${owner}/${repo}`;
+    let prompt = "";
+
+    if (mode === "release-notes") {
+      prompt = `You are a technical writer generating clean release notes for the GitHub repository "${repoLabel}".
+
+Here is what you know about the project's development:
+${context.summary ? `- Overall summary: ${context.summary}` : ""}
+${context.phases?.length ? `- Development phases: ${context.phases.slice(0, 6).join("; ")}` : ""}
+${context.features?.length ? `- Feature areas: ${context.features.slice(0, 8).join(", ")}` : ""}
+${context.architecturalEvents?.length ? `- Key architectural events: ${context.architecturalEvents.slice(0, 5).join("; ")}` : ""}
+${context.recentCommits?.length ? `- Recent commit summaries:\n${context.recentCommits.slice(0, 20).map(c => `  • ${c}`).join("\n")}` : ""}
+${context.waves?.length ? `- Development waves: ${context.waves.slice(0, 4).join(", ")}` : ""}
+${context.totalCommits ? `- Total commits: ${context.totalCommits}` : ""}
+
+Write professional release notes in markdown format with these sections:
+## Overview
+## What's New
+## Improvements
+## Technical Changes
+
+Be specific and concrete. Use bullet points. Write as if addressing end users and developers.`;
+    } else if (mode === "standup") {
+      prompt = `Generate a concise daily standup update for the repository "${repoLabel}".
+
+Recent development context:
+${context.recentCommits?.length ? `Recent work:\n${context.recentCommits.slice(0, 15).map(c => `  • ${c}`).join("\n")}` : ""}
+${context.phases?.length ? `Current phase: ${context.phases[context.phases.length - 1] ?? "active development"}` : ""}
+${context.features?.length ? `Feature areas: ${context.features.slice(0, 5).join(", ")}` : ""}
+${context.summary ? `Project context: ${context.summary}` : ""}
+
+Format the standup update exactly like this:
+✅ Yesterday / Recently Done:
+(bullet points of what was completed)
+
+🔨 Currently In Progress:
+(bullet points of what is ongoing)
+
+📋 Up Next:
+(bullet points of what is planned)
+
+🚧 Blockers / Notes:
+(any risks or blockers from the commit history, or "None" if none)
+
+Keep it short, practical, and ready to read out loud in a standup meeting.`;
+    } else {
+      prompt = `Write a compelling portfolio/resume description for the project "${repoLabel}".
+
+Project details:
+${context.language ? `- Primary language: ${context.language}` : ""}
+${context.stars !== undefined ? `- GitHub stars: ${context.stars}` : ""}
+${context.summary ? `- Description: ${context.summary}` : ""}
+${context.modules?.length ? `- Key modules/features: ${context.modules.slice(0, 6).join(", ")}` : ""}
+${context.features?.length ? `- Feature areas: ${context.features.slice(0, 6).join(", ")}` : ""}
+${context.dependencies?.length ? `- Tech stack: ${context.dependencies.slice(0, 10).join(", ")}` : ""}
+${context.phases?.length ? `- Development arc: ${context.phases.slice(0, 4).join(" → ")}` : ""}
+${context.totalCommits ? `- Scale: ${context.totalCommits} commits` : ""}
+
+Output format — write exactly 3 resume bullet points:
+• [Strong action verb] [specific technical accomplishment with technologies and scale]
+• [Strong action verb] [specific feature or architecture with business/user impact]  
+• [Strong action verb] [specific metric or outcome that demonstrates quality/scale]
+
+Then write a 2-sentence "Project Summary" paragraph for a portfolio website.
+
+Use powerful action verbs (Engineered, Architected, Built, Developed, Implemented, Designed). Be specific about technologies and impact.`;
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_completion_tokens: 800,
+    });
+
+    const narrative = completion.choices[0]?.message?.content ?? "Could not generate narrative. Please try again.";
+    res.json({ narrative });
+  } catch (err) {
+    req.log.error({ err }, "Narrative generation failed");
+    const message = err instanceof Error ? err.message : "Generation failed";
+    res.status(500).json({ error: message });
+  }
+});
+
 export default router;
