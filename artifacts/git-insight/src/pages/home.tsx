@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ContourLines } from "@/components/contour-lines";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, ArrowRight, Github } from "lucide-react";
+import { Loader2, ArrowRight, Github, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
@@ -116,7 +116,7 @@ export default function Home() {
           </Button>
         </form>
 
-        <div className="mt-8 flex items-center gap-6">
+        <div className="mt-6 flex items-center gap-6">
           {["Repo Analysis", "Commit Patterns", "Dependency Map"].map((label) => (
             <div key={label} className="flex items-center gap-1.5 text-xs text-zinc-500">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-500/60" />
@@ -124,6 +124,29 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        <div className="mt-8 flex items-center gap-4 w-full max-w-2xl">
+          <div className="flex-1 h-px bg-white/8" />
+          <span className="text-xs text-zinc-600 shrink-0">or jump straight to</span>
+          <div className="flex-1 h-px bg-white/8" />
+        </div>
+
+        <button
+          onClick={() => setLocation("/narrative")}
+          className="mt-4 w-full max-w-2xl group flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-violet-500/8 hover:border-violet-500/30 transition-all duration-300 text-left"
+        >
+          <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center shrink-0 group-hover:bg-violet-500/25 transition-colors">
+            <Sparkles className="w-5 h-5 text-violet-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white">AI Narrative Generator</p>
+            <p className="text-xs text-zinc-500 mt-0.5">Release notes · Standup updates · Portfolio descriptions — no repo needed</p>
+          </div>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/25 shrink-0">
+            NEW
+          </span>
+          <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-violet-400 group-hover:translate-x-1 transition-all shrink-0" />
+        </button>
       </div>
 
       <Dialog open={showPicker} onOpenChange={setShowPicker}>
