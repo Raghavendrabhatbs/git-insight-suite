@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import ChooseAnalysis from "@/pages/choose";
 import RepoAnalysis from "@/pages/repo-analysis";
 import CommitAnalysis from "@/pages/commit-analysis";
+import DeveloperIntelligence from "@/pages/developer-intelligence";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/choose" component={ChooseAnalysis} />
       <Route path="/repo-analysis" component={RepoAnalysis} />
       <Route path="/commit-analysis" component={CommitAnalysis} />
+      <Route path="/developer-intelligence" component={DeveloperIntelligence} />
       <Route component={NotFound} />
     </Switch>
   );

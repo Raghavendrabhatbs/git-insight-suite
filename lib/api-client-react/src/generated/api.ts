@@ -18,11 +18,16 @@ import type {
 
 import type {
   CommitAnalysis,
+  CommitExplanation,
+  DeveloperIntelligenceResult,
+  ExplainCommitInput,
   GithubRepoInput,
   GithubUrlInput,
   GithubValidateResult,
   HealthStatus,
   RepoAnalysis,
+  RepoChatInput,
+  RepoChatResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -366,4 +371,239 @@ export const useAnalyzeCommits = <
   TContext
 > => {
   return useMutation(getAnalyzeCommitsMutationOptions(options));
+};
+
+/**
+ * @summary Explain a specific commit in human-readable form by reading its actual code diff
+ */
+export const getExplainCommitUrl = () => {
+  return `/api/github/explain-commit`;
+};
+
+export const explainCommit = async (
+  explainCommitInput: ExplainCommitInput,
+  options?: RequestInit,
+): Promise<CommitExplanation> => {
+  return customFetch<CommitExplanation>(getExplainCommitUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(explainCommitInput),
+  });
+};
+
+export const getExplainCommitMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof explainCommit>>,
+    TError,
+    { data: BodyType<ExplainCommitInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof explainCommit>>,
+  TError,
+  { data: BodyType<ExplainCommitInput> },
+  TContext
+> => {
+  const mutationKey = ["explainCommit"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof explainCommit>>,
+    { data: BodyType<ExplainCommitInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return explainCommit(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export const getRepoChatUrl = () => `/api/github/repo-chat`;
+
+export const repoChat = async (
+  repoChatInput: RepoChatInput,
+  options?: RequestInit,
+): Promise<RepoChatResponse> => {
+  return customFetch<RepoChatResponse>(getRepoChatUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(repoChatInput),
+  });
+};
+
+export const getRepoChatMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof repoChat>>,
+    TError,
+    { data: BodyType<RepoChatInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof repoChat>>,
+  TError,
+  { data: BodyType<RepoChatInput> },
+  TContext
+> => {
+  const mutationKey = ["repoChat"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof repoChat>>,
+    { data: BodyType<RepoChatInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+    return repoChat(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RepoChatMutationResult = NonNullable<Awaited<ReturnType<typeof repoChat>>>;
+export type RepoChatMutationBody = BodyType<RepoChatInput>;
+export type RepoChatMutationError = ErrorType<void>;
+
+export const useRepoChat = <TError = ErrorType<void>, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof repoChat>>,
+    TError,
+    { data: BodyType<RepoChatInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof repoChat>>,
+  TError,
+  { data: BodyType<RepoChatInput> },
+  TContext
+> => {
+  return useMutation(getRepoChatMutationOptions(options));
+};
+
+export type ExplainCommitMutationResult = NonNullable<
+  Awaited<ReturnType<typeof explainCommit>>
+>;
+export type ExplainCommitMutationBody = BodyType<ExplainCommitInput>;
+export type ExplainCommitMutationError = ErrorType<void>;
+
+/**
+ * @summary Explain a specific commit in human-readable form by reading its actual code diff
+ */
+export const getDeveloperIntelligenceUrl = () => {
+  return `/api/github/developer-intelligence`;
+};
+
+export const developerIntelligence = async (
+  githubRepoInput: GithubRepoInput,
+  options?: RequestInit,
+): Promise<DeveloperIntelligenceResult> => {
+  return customFetch<DeveloperIntelligenceResult>(getDeveloperIntelligenceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(githubRepoInput),
+  });
+};
+
+export const getDeveloperIntelligenceMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof developerIntelligence>>,
+    TError,
+    { data: BodyType<GithubRepoInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof developerIntelligence>>,
+  TError,
+  { data: BodyType<GithubRepoInput> },
+  TContext
+> => {
+  const mutationKey = ["developerIntelligence"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof developerIntelligence>>,
+    { data: BodyType<GithubRepoInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+    return developerIntelligence(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeveloperIntelligenceMutationResult = NonNullable<Awaited<ReturnType<typeof developerIntelligence>>>;
+export type DeveloperIntelligenceMutationBody = BodyType<GithubRepoInput>;
+export type DeveloperIntelligenceMutationError = ErrorType<void>;
+
+export const useDeveloperIntelligence = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof developerIntelligence>>,
+    TError,
+    { data: BodyType<GithubRepoInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof developerIntelligence>>,
+  TError,
+  { data: BodyType<GithubRepoInput> },
+  TContext
+> => {
+  return useMutation(getDeveloperIntelligenceMutationOptions(options));
+};
+
+export const useExplainCommit = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof explainCommit>>,
+    TError,
+    { data: BodyType<ExplainCommitInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof explainCommit>>,
+  TError,
+  { data: BodyType<ExplainCommitInput> },
+  TContext
+> => {
+  return useMutation(getExplainCommitMutationOptions(options));
 };

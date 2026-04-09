@@ -94,6 +94,29 @@ paths:
         "404":
           description: Repository not found
 
+  /github/explain-commit:
+    post:
+      operationId: explainCommit
+      tags: [github]
+      summary: Explain a specific commit in human-readable form by reading its actual code diff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExplainCommitInput"
+      responses:
+        "200":
+          description: Detailed commit explanation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommitExplanation"
+        "400":
+          description: Bad request
+        "404":
+          description: Commit not found
+
 components:
   schemas:
     HealthStatus:
@@ -294,6 +317,9 @@ components:
           type: array
           items:
             type: string
+        aiSummary:
+          type: string
+          description: "AI-generated plain-English summary of what this repository is and does"
       required:
         - owner
         - repo
@@ -420,6 +446,125 @@ components:
         - riskLevel
         - reason
 
+    ExplainCommitInput:
+      type: object
+      properties:
+        owner:
+          type: string
+        repo:
+          type: string
+        sha:
+          type: string
+          description: "Full or partial commit SHA, or commit number (e.g. '1', '42') counted from most recent"
+      required:
+        - owner
+        - repo
+        - sha
+
+    FileDiff:
+      type: object
+      properties:
+        filename:
+          type: string
+        status:
+          type: string
+          description: "added, modified, removed, renamed"
+        additions:
+          type: integer
+        deletions:
+          type: integer
+        patch:
+          type: string
+        explanation:
+          type: string
+          description: "AI explanation of what changed in this file and why"
+      required:
+        - filename
+        - additions
+        - deletions
+
+    CommitExplanation:
+      type: object
+      properties:
+        sha:
+          type: string
+        shortSha:
+          type: string
+        message:
+          type: string
+        author:
+          type: string
+        date:
+          type: string
+        type:
+          type: string
+        humanSummary:
+          type: string
+          description: "High-level 2-3 sentence plain-English summary"
+        whatChanged:
+          type: string
+          description: "Detailed breakdown of what was changed"
+        whyItMatters:
+          type: string
+          description: "Impact and significance of this commit"
+        fileDiffs:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileDiff"
+        totalAdditions:
+          type: integer
+        totalDeletions:
+          type: integer
+        commitNumber:
+          type: integer
+          description: "Position from most recent (1 = most recent)"
+      required:
+        - sha
+        - shortSha
+        - message
+        - author
+        - date
+        - type
+        - humanSummary
+        - whatChanged
+        - whyItMatters
+
+    CommitStory:
+      type: object
+      properties:
+        sha:
+          type: string
+        shortSha:
+          type: string
+        message:
+          type: string
+        author:
+          type: string
+        date:
+          type: string
+        type:
+          type: string
+          description: "Feature, Fix, Refactor, etc."
+        humanSummary:
+          type: string
+          description: "AI-generated plain-English explanation of what this commit changed"
+        filesChanged:
+          type: array
+          items:
+            type: string
+        linesAdded:
+          type: integer
+        linesRemoved:
+          type: integer
+      required:
+        - sha
+        - shortSha
+        - message
+        - author
+        - date
+        - type
+        - humanSummary
+
     CommitAnalysis:
       type: object
       properties:
@@ -437,6 +582,11 @@ components:
           type: string
         executiveSummary:
           type: string
+        commitStories:
+          type: array
+          description: "AI-generated human-readable stories for recent commits"
+          items:
+            $ref: "#/components/schemas/CommitStory"
         phases:
           type: array
           items:

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Git Insight Suite"
+version = "1.0.0"
+id = "artifacts/git-insight"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25888
+
+[services.development]
+run = "pnpm --filter @workspace/git-insight run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/git-insight", "run", "build" ]
+publicDir = "artifacts/git-insight/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25888"
+BASE_PATH = "/"

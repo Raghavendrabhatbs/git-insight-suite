@@ -8,6 +8,7 @@
 import type { ArchitecturalEvent } from "./architecturalEvent";
 import type { ChurnFile } from "./churnFile";
 import type { CommitPhase } from "./commitPhase";
+import type { CommitStory } from "./commitStory";
 import type { ContributorRole } from "./contributorRole";
 import type { DevelopmentWave } from "./developmentWave";
 import type { FeatureCluster } from "./featureCluster";
@@ -21,6 +22,8 @@ export interface CommitAnalysis {
   startDate?: string;
   endDate?: string;
   executiveSummary: string;
+  /** AI-generated human-readable stories for recent commits */
+  commitStories?: CommitStory[];
   phases: CommitPhase[];
   featureClusters: FeatureCluster[];
   developmentWaves: DevelopmentWave[];

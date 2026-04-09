@@ -7,6 +7,20 @@
  */
 import * as zod from "zod";
 
+export const RepoChatBody = zod.object({
+  owner: zod.string(),
+  repo: zod.string(),
+  message: zod.string(),
+  history: zod
+    .array(zod.object({ role: zod.string(), content: zod.string() }))
+    .optional()
+    .default([]),
+});
+
+export const RepoChatResponse = zod.object({
+  response: zod.string(),
+});
+
 /**
  * Returns server health status
  * @summary Health check
@@ -55,6 +69,7 @@ export const AnalyzeRepoResponse = zod.object({
   owner: zod.string(),
   repo: zod.string(),
   mainIdea: zod.string(),
+  aiSummary: zod.string().optional(),
   language: zod.string().optional(),
   stars: zod.number().optional(),
   forks: zod.number().optional(),
@@ -119,10 +134,32 @@ export const AnalyzeCommitsResponse = zod.object({
   owner: zod.string(),
   repo: zod.string(),
   totalCommits: zod.number(),
+  analyzedCommits: zod.number().optional(),
   contributors: zod.number().optional(),
   startDate: zod.string().optional(),
   endDate: zod.string().optional(),
   executiveSummary: zod.string(),
+  commitStories: zod
+    .array(
+      zod.object({
+        sha: zod.string(),
+        shortSha: zod.string(),
+        message: zod.string(),
+        author: zod.string(),
+        date: zod.string(),
+        type: zod.string().describe("Feature, Fix, Refactor, etc."),
+        humanSummary: zod
+          .string()
+          .describe(
+            "AI-generated plain-English explanation of what this commit changed",
+          ),
+        filesChanged: zod.array(zod.string()).optional(),
+        linesAdded: zod.number().optional(),
+        linesRemoved: zod.number().optional(),
+      }),
+    )
+    .optional()
+    .describe("AI-generated human-readable stories for recent commits"),
   phases: zod.array(
     zod.object({
       phase: zod.number(),
@@ -167,6 +204,8 @@ export const AnalyzeCommitsResponse = zod.object({
         event: zod.string(),
         impact: zod.string(),
         description: zod.string().optional(),
+        author: zod.string().optional(),
+        date: zod.string().optional(),
       }),
     )
     .optional(),
@@ -177,6 +216,8 @@ export const AnalyzeCommitsResponse = zod.object({
         message: zod.string(),
         riskLevel: zod.string(),
         reason: zod.string(),
+        author: zod.string().optional(),
+        date: zod.string().optional(),
       }),
     )
     .optional(),
@@ -189,4 +230,148 @@ export const AnalyzeCommitsResponse = zod.object({
       }),
     )
     .optional(),
+  noisyCommits: zod
+    .array(
+      zod.object({
+        commitSha: zod.string(),
+        message: zod.string(),
+        reason: zod.string(),
+        author: zod.string(),
+        date: zod.string().optional(),
+      }),
+    )
+    .optional(),
+  contributorIntelligence: zod
+    .array(
+      zod.object({
+        author: zod.string(),
+        avatarUrl: zod.string().optional(),
+        profileUrl: zod.string(),
+        commitCount: zod.number(),
+        commitPercentage: zod.number(),
+        role: zod.string(),
+        roleEmoji: zod.string(),
+        typeBreakdown: zod.array(zod.object({ type: zod.string(), count: zod.number() })),
+        modules: zod.array(zod.string()),
+        activeMonths: zod.array(zod.string()),
+        firstCommit: zod.string(),
+        lastCommit: zod.string(),
+        phases: zod.array(zod.number()),
+        highImpactFiles: zod.array(zod.string()),
+        collaborators: zod.array(zod.string()),
+        linesAdded: zod.number().optional(),
+        linesRemoved: zod.number().optional(),
+      }),
+    )
+    .optional(),
+  collaborationInsights: zod
+    .array(
+      zod.object({
+        authors: zod.array(zod.string()),
+        sharedFiles: zod.array(zod.string()),
+        fileCount: zod.number(),
+      }),
+    )
+    .optional(),
+});
+
+export const DeveloperIntelligenceBody = zod.object({
+  owner: zod.string(),
+  repo: zod.string(),
+});
+
+const devContributorShape = zod.object({
+  author: zod.string(),
+  avatarUrl: zod.string().optional(),
+  profileUrl: zod.string(),
+  commitCount: zod.number(),
+  commitPercentage: zod.number(),
+  role: zod.string(),
+  roleEmoji: zod.string(),
+  typeBreakdown: zod.array(zod.object({ type: zod.string(), count: zod.number() })),
+  modules: zod.array(zod.string()),
+  activeMonths: zod.array(zod.string()),
+  firstCommit: zod.string(),
+  lastCommit: zod.string(),
+  phases: zod.array(zod.number()),
+  highImpactFiles: zod.array(zod.string()),
+  collaborators: zod.array(zod.string()),
+  linesAdded: zod.number().optional(),
+  linesRemoved: zod.number().optional(),
+  email: zod.string().optional(),
+  twitter: zod.string().optional(),
+  website: zod.string().optional(),
+  company: zod.string().optional(),
+  location: zod.string().optional(),
+  bio: zod.string().optional(),
+});
+
+export const DeveloperIntelligenceResponse = zod.object({
+  owner: zod.string(),
+  repo: zod.string(),
+  totalCommits: zod.number(),
+  analyzedCommits: zod.number(),
+  contributors: zod.number(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
+  contributorIntelligence: zod.array(devContributorShape),
+  collaborationInsights: zod.array(
+    zod.object({
+      authors: zod.array(zod.string()),
+      sharedFiles: zod.array(zod.string()),
+      fileCount: zod.number(),
+    }),
+  ),
+  highChurnFiles: zod.array(zod.object({ file: zod.string(), changes: zod.number() })).optional(),
+});
+
+/**
+ * @summary Explain a specific commit in human-readable form by reading its actual code diff
+ */
+export const ExplainCommitBody = zod.object({
+  owner: zod.string(),
+  repo: zod.string(),
+  sha: zod
+    .string()
+    .describe(
+      "Full or partial commit SHA, or commit number (e.g. '1', '42') counted from most recent",
+    ),
+});
+
+export const ExplainCommitResponse = zod.object({
+  sha: zod.string(),
+  shortSha: zod.string(),
+  message: zod.string(),
+  author: zod.string(),
+  date: zod.string(),
+  type: zod.string(),
+  humanSummary: zod
+    .string()
+    .describe("High-level 2-3 sentence plain-English summary"),
+  whatChanged: zod.string().describe("Detailed breakdown of what was changed"),
+  whyItMatters: zod.string().describe("Impact and significance of this commit"),
+  fileDiffs: zod
+    .array(
+      zod.object({
+        filename: zod.string(),
+        status: zod
+          .string()
+          .optional()
+          .describe("added, modified, removed, renamed"),
+        additions: zod.number(),
+        deletions: zod.number(),
+        patch: zod.string().optional(),
+        explanation: zod
+          .string()
+          .optional()
+          .describe("AI explanation of what changed in this file and why"),
+      }),
+    )
+    .optional(),
+  totalAdditions: zod.number().optional(),
+  totalDeletions: zod.number().optional(),
+  commitNumber: zod
+    .number()
+    .optional()
+    .describe("Position from most recent (1 = most recent)"),
 });

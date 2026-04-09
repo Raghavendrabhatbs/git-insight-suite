@@ -77,6 +77,7 @@ export interface RepoAnalysis {
   owner: string;
   repo: string;
   mainIdea: string;
+  aiSummary?: string;
   language?: string;
   stars?: number;
   forks?: number;
@@ -132,6 +133,8 @@ export interface ArchitecturalEvent {
   event: string;
   impact: string;
   description?: string;
+  author?: string;
+  date?: string;
 }
 
 export interface RiskCommit {
@@ -139,16 +142,138 @@ export interface RiskCommit {
   message: string;
   riskLevel: string;
   reason: string;
+  author?: string;
+  date?: string;
+}
+
+export interface RepoChatInput {
+  owner: string;
+  repo: string;
+  message: string;
+  history?: Array<{ role: string; content: string }>;
+}
+
+export interface RepoChatResponse {
+  response: string;
+}
+
+export interface ExplainCommitInput {
+  owner: string;
+  repo: string;
+  /** Full or partial commit SHA, or commit number (e.g. '1', '42') counted from most recent */
+  sha: string;
+}
+
+export interface FileDiff {
+  filename: string;
+  /** added, modified, removed, renamed */
+  status?: string;
+  additions: number;
+  deletions: number;
+  patch?: string;
+  /** AI explanation of what changed in this file and why */
+  explanation?: string;
+}
+
+export interface CommitExplanation {
+  sha: string;
+  shortSha: string;
+  message: string;
+  author: string;
+  date: string;
+  type: string;
+  /** High-level 2-3 sentence plain-English summary */
+  humanSummary: string;
+  /** Detailed breakdown of what was changed */
+  whatChanged: string;
+  /** Impact and significance of this commit */
+  whyItMatters: string;
+  fileDiffs?: FileDiff[];
+  totalAdditions?: number;
+  totalDeletions?: number;
+  /** Position from most recent (1 = most recent) */
+  commitNumber?: number;
+}
+
+export interface CommitStory {
+  sha: string;
+  shortSha: string;
+  message: string;
+  author: string;
+  date: string;
+  /** Feature, Fix, Refactor, etc. */
+  type: string;
+  /** AI-generated plain-English explanation of what this commit changed */
+  humanSummary: string;
+  filesChanged?: string[];
+  linesAdded?: number;
+  linesRemoved?: number;
+}
+
+export interface ContributorIntelligence {
+  author: string;
+  avatarUrl?: string;
+  profileUrl: string;
+  commitCount: number;
+  commitPercentage: number;
+  role: string;
+  roleEmoji: string;
+  typeBreakdown: { type: string; count: number }[];
+  modules: string[];
+  activeMonths: string[];
+  firstCommit: string;
+  lastCommit: string;
+  phases: number[];
+  highImpactFiles: string[];
+  collaborators: string[];
+  linesAdded?: number;
+  linesRemoved?: number;
+  email?: string;
+  twitter?: string;
+  website?: string;
+  company?: string;
+  location?: string;
+  bio?: string;
+}
+
+export interface CollaborationInsight {
+  authors: string[];
+  sharedFiles: string[];
+  fileCount: number;
+}
+
+export interface DeveloperIntelligenceResult {
+  owner: string;
+  repo: string;
+  totalCommits: number;
+  analyzedCommits: number;
+  contributors: number;
+  startDate?: string;
+  endDate?: string;
+  contributorIntelligence: ContributorIntelligence[];
+  collaborationInsights: CollaborationInsight[];
+  highChurnFiles?: { file: string; changes: number }[];
+}
+
+export interface NoisyCommit {
+  commitSha: string;
+  message: string;
+  reason: string;
+  author: string;
+  date?: string;
 }
 
 export interface CommitAnalysis {
   owner: string;
   repo: string;
   totalCommits: number;
+  analyzedCommits?: number;
   contributors?: number;
   startDate?: string;
   endDate?: string;
   executiveSummary: string;
+  /** AI-generated human-readable stories for recent commits */
+  commitStories?: CommitStory[];
   phases: CommitPhase[];
   featureClusters: FeatureCluster[];
   developmentWaves: DevelopmentWave[];
@@ -156,4 +281,7 @@ export interface CommitAnalysis {
   architecturalEvents?: ArchitecturalEvent[];
   riskCommits?: RiskCommit[];
   highChurnFiles?: ChurnFile[];
+  noisyCommits?: NoisyCommit[];
+  contributorIntelligence?: ContributorIntelligence[];
+  collaborationInsights?: CollaborationInsight[];
 }

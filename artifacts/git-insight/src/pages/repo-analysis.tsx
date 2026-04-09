@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useAnalyzeRepo } from "@workspace/api-client-react";
-import { ArrowLeft, Folder, File, Code, Package, Activity, Loader2 } from "lucide-react";
+import { ArrowLeft, Folder, File, Code, Package, Activity, Loader2, Sparkles, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useRateStatus, RateLimitScreen } from "@/components/rate-limit-guard";
+import { AiAssistant } from "@/components/ai-assistant";
 
 export default function RepoAnalysis() {
   const [, setLocation] = useLocation();
@@ -94,14 +95,16 @@ export default function RepoAnalysis() {
     return (
       <div className="space-y-1" style={{ paddingLeft: `${depth * 16}px` }}>
         {nodes.map((node, i) => (
-          <div key={i} className="flex flex-col">
-            <div className="flex items-center gap-2 py-1 px-2 hover:bg-white/5 rounded-md cursor-pointer text-sm text-gray-300">
-              {node.type === "dir" ? (
-                <Folder className="w-4 h-4 text-blue-400" />
-              ) : (
-                <File className="w-4 h-4 text-gray-400" />
-              )}
-              <span className="font-mono">{node.name}</span>
+          <div key={i} className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2 py-1 px-2 hover:bg-white/5 rounded-md cursor-pointer text-sm text-gray-300 min-w-0">
+              <span className="shrink-0">
+                {node.type === "dir" ? (
+                  <Folder className="w-4 h-4 text-blue-400" />
+                ) : (
+                  <File className="w-4 h-4 text-gray-400" />
+                )}
+              </span>
+              <span className="font-mono truncate" title={node.name}>{node.name}</span>
             </div>
             {node.children && node.children.length > 0 && renderFolderTree(node.children, depth + 1)}
           </div>
@@ -115,30 +118,37 @@ export default function RepoAnalysis() {
   const backPct = Math.round(((data.backendFiles || 0) / totalFiles) * 100);
 
   return (
-    <div className="min-h-[100dvh] bg-background text-foreground">
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setLocation(`/choose?owner=${owner}&repo=${repo}`)}>
+    <div className="min-h-[100dvh] bg-background text-foreground overflow-x-hidden">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border px-6 py-4 flex items-center justify-between min-w-0">
+        <div className="flex items-center gap-4 min-w-0">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setLocation(`/choose?owner=${owner}&repo=${repo}`)}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div>
-            <h1 className="text-xl font-bold">{data.repo}</h1>
-            <p className="text-xs text-muted-foreground">{data.owner}/{data.repo}</p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold truncate">{data.repo}</h1>
+              <a
+                href={`https://github.com/${data.owner}/${data.repo}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                title="View on GitHub"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+            <p className="text-xs text-muted-foreground truncate">{data.owner}/{data.repo}</p>
           </div>
         </div>
       </div>
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
 
-        {/* Main Idea Card */}
+        {/* Header stats row */}
         <Card className="bg-card border-border">
           <CardContent className="pt-5">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Main Idea</p>
-                <p className="text-foreground">{data.mainIdea}</p>
-              </div>
-              <div className="flex gap-4 shrink-0">
+              <div className="flex gap-6 shrink-0 flex-wrap">
                 {data.language && (
                   <div className="text-center">
                     <p className="text-xs text-muted-foreground">Language</p>
@@ -157,10 +167,34 @@ export default function RepoAnalysis() {
                     <p className="font-bold text-blue-400">{data.forks.toLocaleString()}</p>
                   </div>
                 )}
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">Frontend</p>
+                  <p className="font-bold text-violet-400">{data.frontendFiles ?? 0} files</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">Backend</p>
+                  <p className="font-bold text-cyan-400">{data.backendFiles ?? 0} files</p>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* AI Repository Summary */}
+        {data.aiSummary && (
+          <div className="relative rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-card to-card p-5">
+            <div className="absolute top-4 right-4 opacity-10">
+              <Sparkles className="w-20 h-20 text-violet-400" />
+            </div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md bg-violet-500/20 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+              </div>
+              <span className="text-xs font-semibold text-violet-400 uppercase tracking-wider">AI Repository Summary</span>
+            </div>
+            <p className="text-sm text-foreground/90 leading-relaxed">{data.aiSummary}</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-1 bg-card border-border row-span-2">
@@ -170,7 +204,7 @@ export default function RepoAnalysis() {
                 Folder Hierarchy
               </CardTitle>
             </CardHeader>
-            <CardContent className="max-h-[800px] overflow-y-auto custom-scrollbar">
+            <CardContent className="max-h-[800px] overflow-y-auto overflow-x-hidden custom-scrollbar">
               {data.folderHierarchy ? renderFolderTree(data.folderHierarchy) : <p className="text-muted-foreground text-sm">No hierarchy available.</p>}
             </CardContent>
           </Card>
@@ -185,12 +219,12 @@ export default function RepoAnalysis() {
             <CardContent>
               <div className="space-y-4">
                 {data.modules?.map((mod, i) => (
-                  <div key={i} className="p-4 rounded-lg bg-background border border-border flex items-start justify-between">
-                    <div>
-                      <div className="font-mono font-medium mb-1">{mod.name}</div>
-                      <div className="text-sm text-muted-foreground">{mod.purpose}</div>
+                  <div key={i} className="p-4 rounded-lg bg-background border border-border flex items-start justify-between gap-3 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-mono font-medium mb-1 break-all">{mod.name}</div>
+                      <div className="text-sm text-muted-foreground break-words">{mod.purpose}</div>
                     </div>
-                    {mod.fileCount && <Badge variant="secondary">{mod.fileCount} files</Badge>}
+                    {mod.fileCount && <Badge variant="secondary" className="shrink-0">{mod.fileCount} files</Badge>}
                   </div>
                 ))}
               </div>
@@ -268,35 +302,16 @@ export default function RepoAnalysis() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-card border-border">
+          <Card className="bg-card border-border lg:col-span-2">
             <CardHeader>
               <CardTitle>Entry Points</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.entryPoints?.map((ep, i) => (
-                  <div key={i} className="flex flex-col border-b border-border/50 pb-3 last:border-0 last:pb-0">
-                    <span className="font-mono text-sm text-blue-400 mb-1">{ep.file}</span>
-                    <span className="text-sm text-muted-foreground">{ep.purpose}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-orange-400" />
-                High Churn Files
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {data.highChurnFiles?.map((file, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-background rounded border border-border">
-                    <span className="font-mono text-sm truncate mr-4">{file.file}</span>
-                    <Badge variant="destructive" className="shrink-0">{file.changes} changes</Badge>
+                  <div key={i} className="flex flex-col rounded-lg bg-background border border-border/50 p-3 min-w-0">
+                    <span className="font-mono text-sm text-blue-400 mb-1 break-all">{ep.file}</span>
+                    <span className="text-sm text-muted-foreground break-words">{ep.purpose}</span>
                   </div>
                 ))}
               </div>
@@ -305,6 +320,7 @@ export default function RepoAnalysis() {
         </div>
 
       </div>
+      {owner && repo && <AiAssistant owner={owner} repo={repo} />}
     </div>
   );
 }
