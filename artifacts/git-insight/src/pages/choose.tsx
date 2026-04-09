@@ -1,5 +1,5 @@
 import { useLocation, useSearch } from "wouter";
-import { GitBranch, GitCommit, ArrowLeft, Users } from "lucide-react";
+import { GitBranch, GitCommit, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ChooseAnalysis() {
@@ -66,22 +66,6 @@ export default function ChooseAnalysis() {
             </div>
           </div>
 
-          <div
-            className="group relative bg-card border border-border rounded-2xl p-8 cursor-pointer hover:border-violet-500 transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] md:col-span-2 xl:col-span-1"
-            onClick={() => setLocation(`/developer-intelligence?owner=${owner}&repo=${repo}`)}
-            data-testid="card-developer-intelligence"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-violet-500/20 flex items-center justify-center mb-6">
-              <Users className="w-8 h-8 text-violet-400" />
-            </div>
-            <h2 className="text-2xl font-bold mb-4 tracking-tight">DEVELOPER INTELLIGENCE</h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
-              Profile every contributor — detect roles, map module ownership, track activity timelines, identify high-impact work, and surface collaboration patterns.
-            </p>
-            <div className="text-violet-400 font-medium flex items-center group-hover:translate-x-2 transition-transform">
-              Start Analysis &gt;
-            </div>
-          </div>
         </div>
       </div>
     </div>

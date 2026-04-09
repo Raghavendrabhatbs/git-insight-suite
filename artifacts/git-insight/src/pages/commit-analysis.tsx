@@ -959,7 +959,15 @@ export default function CommitAnalysis() {
                               <p className="text-xs text-foreground/80 truncate">{nc.message}</p>
                               <div className="flex items-center gap-2 mt-1 flex-wrap">
                                 <Badge className="border text-[9px] px-1.5 py-0 bg-amber-500/10 text-amber-400 border-amber-500/30">{nc.reason}</Badge>
-                                <span className="text-[10px] text-muted-foreground">{nc.author}</span>
+                                {nc.author && (
+                                  <button
+                                    className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-violet-400 transition-colors cursor-pointer"
+                                    title="View developer profile"
+                                    onClick={() => setDevProfileAuthor(nc.author!)}
+                                  >
+                                    <User className="w-2.5 h-2.5" />{nc.author}
+                                  </button>
+                                )}
                                 {nc.date && <span className="text-[10px] text-muted-foreground">{formatDate(nc.date)}</span>}
                               </div>
                             </div>
