@@ -67,7 +67,7 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  
+
   @keyframes accordion-down {
     from { height: 0; }
     to { height: var(--radix-accordion-content-height); }
@@ -82,77 +82,81 @@
   color-scheme: dark;
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 8;
+  --elevate-1: rgba(255,255,255, .03);
+  --elevate-2: rgba(255,255,255, .07);
 
-  --opaque-button-border-intensity: 9;
+  /* ── Backgrounds ──────────────────────────────── */
+  /* Rich deep navy  #06090F */
+  --background: 222 55% 5%;
+  --foreground: 210 30% 97%;
 
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
+  /* Borders — cool blue-slate */
+  --border: 220 28% 14%;
 
-  /* Deep dark #0a0a0f */
-  --background: 240 20% 5%;
-  --foreground: 0 0% 100%;
+  /* Cards — slightly elevated navy */
+  --card: 223 48% 7.5%;
+  --card-foreground: 210 30% 97%;
+  --card-border: 220 28% 14%;
 
-  /* Borders #1e1e24 */
-  --border: 240 10% 15%;
-
-  /* Cards #12121a */
-  --card: 240 18% 9%;
-  --card-foreground: 0 0% 100%;
-  --card-border: 240 10% 15%;
-
-  --sidebar: 240 18% 9%;
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 240 10% 15%;
-  --sidebar-primary: 262 83% 58%;
+  --sidebar: 223 48% 7.5%;
+  --sidebar-foreground: 210 30% 97%;
+  --sidebar-border: 220 28% 14%;
+  --sidebar-primary: 234 90% 67%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 10% 15%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 262 83% 58%;
+  --sidebar-accent: 220 28% 14%;
+  --sidebar-accent-foreground: 210 30% 97%;
+  --sidebar-ring: 234 90% 67%;
 
-  --popover: 240 18% 9%;
-  --popover-foreground: 0 0% 100%;
-  --popover-border: 240 10% 15%;
+  --popover: 223 48% 7.5%;
+  --popover-foreground: 210 30% 97%;
+  --popover-border: 220 28% 14%;
 
-  /* Primary #7c3aed */
-  --primary: 262 83% 58%;
+  /* ── Brand Colors ─────────────────────────────── */
+  /* Primary — Electric Indigo #5B78F5 */
+  --primary: 234 88% 67%;
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary #3b82f6 */
-  --secondary: 217 91% 60%;
+  /* Secondary — Teal/Cyan #2BBFB8 */
+  --secondary: 177 65% 46%;
   --secondary-foreground: 0 0% 100%;
 
-  --muted: 240 10% 15%;
-  --muted-foreground: 240 10% 60%;
+  /* ── Surface & Text ───────────────────────────── */
+  --muted: 220 28% 14%;
+  --muted-foreground: 220 18% 57%;
 
-  --accent: 240 10% 15%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 220 28% 14%;
+  --accent-foreground: 210 30% 97%;
 
-  --destructive: 0 84% 60%;
+  --destructive: 4 90% 62%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 240 10% 15%;
-  --ring: 262 83% 58%;
+  --input: 220 28% 13%;
+  --ring: 234 88% 67%;
 
-  --chart-1: 262 83% 58%;
-  --chart-2: 217 91% 60%;
-  --chart-3: 187 93% 37%; /* cyan */
-  --chart-4: 43 100% 50%;
-  --chart-5: 320 80% 50%;
+  /* ── Charts ───────────────────────────────────── */
+  --chart-1: 234 88% 67%;   /* indigo */
+  --chart-2: 177 65% 46%;   /* teal */
+  --chart-3: 43 100% 55%;   /* amber */
+  --chart-4: 320 75% 62%;   /* rose */
+  --chart-5: 270 80% 65%;   /* violet */
 
-  --app-font-sans: 'Geist', 'Inter', sans-serif;
+  /* ── Typography ───────────────────────────────── */
+  --app-font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: 'JetBrains Mono', 'Menlo', monospace;
-  
-  --radius: 0.5rem;
-  
-  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+
+  /* ── Shape ────────────────────────────────────── */
+  --radius: 0.625rem;
+
+  --shadow-2xs: 0 1px 2px 0 rgba(0,0,0,0.35);
+  --shadow-xs:  0 1px 3px 0 rgba(0,0,0,0.4);
+  --shadow-sm:  0 2px 6px -1px rgba(0,0,0,0.45);
+  --shadow:     0 4px 12px -2px rgba(0,0,0,0.5);
+  --shadow-md:  0 6px 20px -4px rgba(0,0,0,0.55);
+  --shadow-lg:  0 12px 30px -6px rgba(0,0,0,0.6);
+  --shadow-xl:  0 20px 50px -10px rgba(0,0,0,0.65);
+  --shadow-2xl: 0 30px 70px -15px rgba(0,0,0,0.7);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -170,8 +174,63 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.7;
+    letter-spacing: -0.005em;
+    font-feature-settings: "cv11", "ss01";
+    font-variation-settings: "opsz" 32;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: hsl(210 30% 97%);
+  }
+
+  h1 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; }
+  h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+  h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
+  h4 { font-size: 1.125rem; }
+
+  p {
+    line-height: 1.75;
+    color: hsl(220 18% 72%);
+  }
+
+  code, pre, kbd, samp {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(220 28% 20%);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(220 28% 30%);
+  }
+
+  ::selection {
+    background: hsl(234 88% 67% / 0.25);
+    color: hsl(210 30% 97%);
   }
 }
 
@@ -183,5 +242,15 @@
     content: attr(data-placeholder);
     color: hsl(var(--muted-foreground));
     pointer-events: none;
+  }
+
+  .font-display {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 }

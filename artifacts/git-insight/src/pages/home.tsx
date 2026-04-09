@@ -60,35 +60,36 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full bg-[#0a0a0f] overflow-hidden flex items-center">
+    <div className="relative min-h-[100dvh] w-full bg-background overflow-hidden flex items-center">
       <ContourLines />
 
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 70% 60% at 30% 50%, rgba(124,58,237,0.13) 0%, transparent 70%), " +
-            "radial-gradient(ellipse 50% 40% at 60% 80%, rgba(59,130,246,0.08) 0%, transparent 60%)",
+            "radial-gradient(ellipse 80% 60% at 25% 45%, rgba(91,120,245,0.12) 0%, transparent 70%), " +
+            "radial-gradient(ellipse 55% 45% at 65% 75%, rgba(43,191,184,0.07) 0%, transparent 60%), " +
+            "radial-gradient(ellipse 40% 30% at 80% 20%, rgba(91,120,245,0.05) 0%, transparent 50%)",
         }}
       />
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-6 lg:px-12 flex flex-col justify-center">
 
-        <div className="mb-3 flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
-          <span className="text-xs font-medium tracking-widest text-violet-400 uppercase">
+        <div className="mb-5 flex items-center gap-2.5">
+          <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
             GitHub Intelligence
           </span>
         </div>
 
         <h1
-          className="text-7xl lg:text-9xl font-bold tracking-tighter text-white mb-5 leading-none"
-          style={{ textShadow: "0 0 80px rgba(124,58,237,0.35)" }}
+          className="font-display text-white mb-6 leading-[0.95]"
+          style={{ textShadow: "0 0 100px rgba(91,120,245,0.30)" }}
         >
           Welcome.
         </h1>
 
-        <p className="text-lg text-zinc-400 mb-10 max-w-lg leading-relaxed">
+        <p className="text-xl text-muted-foreground mb-10 max-w-lg leading-relaxed font-light">
           Paste any GitHub repository or profile link to instantly unlock deep
           structural analysis, commit patterns, and codebase insights.
         </p>
@@ -97,14 +98,14 @@ export default function Home() {
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste Your Github Profile or Repo Here"
-            className="w-full h-16 pl-6 pr-36 rounded-full bg-white/5 border border-white/10 text-base text-white placeholder:text-zinc-500 backdrop-blur-sm shadow-xl focus-visible:ring-2 focus-visible:ring-violet-500/70 focus-visible:border-violet-500/50 transition-all"
+            placeholder="Paste your GitHub profile or repo URL here"
+            className="w-full h-16 pl-7 pr-40 rounded-2xl bg-card border border-border text-[15px] text-white placeholder:text-muted-foreground/50 shadow-xl focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/40 transition-all"
             data-testid="input-github-url"
           />
           <Button
             type="submit"
             size="lg"
-            className="absolute right-2 h-12 rounded-full px-7 bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-lg shadow-violet-900/40 transition-all"
+            className="absolute right-2 h-12 rounded-xl px-7 bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/20 transition-all text-[15px]"
             disabled={validateMutation.isPending}
             data-testid="button-submit-url"
           >
@@ -116,41 +117,41 @@ export default function Home() {
           </Button>
         </form>
 
-        <div className="mt-6 flex items-center gap-6">
+        <div className="mt-7 flex items-center gap-6">
           {["Repo Analysis", "Commit Patterns", "Dependency Map"].map((label) => (
-            <div key={label} className="flex items-center gap-1.5 text-xs text-zinc-500">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-500/60" />
+            <div key={label} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
               {label}
             </div>
           ))}
         </div>
 
-        <div className="mt-8 flex items-center gap-4 w-full max-w-2xl">
-          <div className="flex-1 h-px bg-white/8" />
-          <span className="text-xs text-zinc-600 shrink-0">or jump straight to</span>
-          <div className="flex-1 h-px bg-white/8" />
+        <div className="mt-10 flex items-center gap-4 w-full max-w-2xl">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs font-medium text-muted-foreground/60 shrink-0 tracking-wide">or jump straight to</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         <button
           onClick={() => setLocation("/narrative")}
-          className="mt-4 w-full max-w-2xl group flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/8 bg-white/3 hover:bg-violet-500/8 hover:border-violet-500/30 transition-all duration-300 text-left"
+          className="mt-4 w-full max-w-2xl group flex items-center gap-4 px-5 py-4 rounded-2xl border border-border bg-card hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 text-left"
         >
-          <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center shrink-0 group-hover:bg-violet-500/25 transition-colors">
-            <Sparkles className="w-5 h-5 text-violet-400" />
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+            <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white">AI Narrative Generator</p>
-            <p className="text-xs text-zinc-500 mt-0.5">Release notes · Standup updates · Portfolio descriptions — no repo needed</p>
+            <p className="text-[15px] font-semibold text-white leading-tight">AI Narrative Generator</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Release notes · Standup updates · Portfolio descriptions — no repo needed</p>
           </div>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/25 shrink-0">
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0 tracking-wide">
             NEW
           </span>
-          <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-violet-400 group-hover:translate-x-1 transition-all shrink-0" />
+          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
         </button>
       </div>
 
       <Dialog open={showPicker} onOpenChange={setShowPicker}>
-        <DialogContent className="sm:max-w-md bg-[#13131a] border-white/10">
+        <DialogContent className="sm:max-w-md bg-card border-border">
           <DialogHeader>
             <DialogTitle className="text-white">Select a Repository</DialogTitle>
             <DialogDescription className="text-zinc-400">

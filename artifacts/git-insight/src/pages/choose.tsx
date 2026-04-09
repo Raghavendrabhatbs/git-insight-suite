@@ -1,5 +1,5 @@
 import { useLocation, useSearch } from "wouter";
-import { GitBranch, GitCommit, ArrowLeft, Sparkles } from "lucide-react";
+import { GitBranch, GitCommit, ArrowLeft, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ChooseAnalysis() {
@@ -14,80 +14,112 @@ export default function ChooseAnalysis() {
     return null;
   }
 
+  const cards = [
+    {
+      id: "repo-analysis",
+      icon: GitBranch,
+      title: "Repo Analyser",
+      desc: "Analyze repository structure, folder hierarchy, dependencies, modules, and backend/frontend separation. Discover entry points and high-churn areas.",
+      cta: "Start Analysis",
+      accent: "primary",
+      accentHex: "91,120,245",
+      onClick: () => setLocation(`/repo-analysis?owner=${owner}&repo=${repo}`),
+    },
+    {
+      id: "commit-analysis",
+      icon: GitCommit,
+      title: "Commit Analyser",
+      desc: "Deep-dive into commit history. Discover development phases, feature clusters, contributor roles, architectural events, and risk commits.",
+      cta: "Start Analysis",
+      accent: "secondary",
+      accentHex: "43,191,184",
+      onClick: () => setLocation(`/commit-analysis?owner=${owner}&repo=${repo}`),
+    },
+    {
+      id: "narrative",
+      icon: Sparkles,
+      title: "AI Narrative",
+      desc: "Convert technical data into polished release notes, standup updates, and resume-ready portfolio descriptions — powered by GPT-4o.",
+      cta: "Generate Content",
+      accent: "violet",
+      accentHex: "139,92,246",
+      badge: "NEW",
+      onClick: () => setLocation(`/narrative?owner=${owner}&repo=${repo}`),
+    },
+  ];
+
   return (
-    <div className="min-h-[100dvh] bg-background text-foreground p-6 lg:p-12">
-      <Button 
-        variant="ghost" 
-        className="mb-8 text-muted-foreground hover:text-white"
-        onClick={() => setLocation("/")}
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back
-      </Button>
+    <div className="min-h-[100dvh] bg-background text-foreground">
+      <div className="max-w-5xl mx-auto px-6 lg:px-10 py-10">
+        <Button
+          variant="ghost"
+          className="mb-10 text-muted-foreground hover:text-foreground -ml-2"
+          onClick={() => setLocation("/")}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
 
-      <div className="max-w-5xl mx-auto mt-12">
-        <h1 className="text-4xl font-bold mb-2">Choose Analysis</h1>
-        <p className="text-xl text-muted-foreground mb-12">
-          Analyzing: <span className="text-primary">github.com/{owner}/{repo}</span>
-        </p>
+        <div className="mb-12">
+          <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase mb-3">Choose Analysis</p>
+          <h1 className="text-white mb-3">What do you want to explore?</h1>
+          <p className="text-muted-foreground text-lg">
+            Analysing{" "}
+            <span className="text-primary font-medium font-mono text-base">
+              github.com/{owner}/{repo}
+            </span>
+          </p>
+        </div>
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div 
-            className="group relative bg-card border border-border rounded-2xl p-8 cursor-pointer hover:border-primary transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(124,58,237,0.3)]"
-            onClick={() => setLocation(`/repo-analysis?owner=${owner}&repo=${repo}`)}
-            data-testid="card-repo-analysis"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
-              <GitBranch className="w-8 h-8 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold mb-4 tracking-tight">REPO ANALYSER</h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
-              Analyze the repository structure, folder hierarchy, dependencies, modules, and backend/frontend separation. Discover entry points and high-churn areas.
-            </p>
-            <div className="text-primary font-medium flex items-center group-hover:translate-x-2 transition-transform">
-              Start Analysis &gt;
-            </div>
-          </div>
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {cards.map((card) => {
+            const Icon = card.icon;
+            const isAccentPrimary = card.accent === "primary";
+            const isAccentSecondary = card.accent === "secondary";
+            const colorClass = isAccentPrimary ? "text-primary" : isAccentSecondary ? "text-secondary" : "text-violet-400";
+            const bgClass = isAccentPrimary ? "bg-primary/10" : isAccentSecondary ? "bg-secondary/10" : "bg-violet-500/10";
+            const hoverBorderClass = isAccentPrimary
+              ? "hover:border-primary/60"
+              : isAccentSecondary
+              ? "hover:border-secondary/60"
+              : "hover:border-violet-500/60";
+            const shadowStyle = { "--shadow-hex": card.accentHex } as React.CSSProperties;
 
-          <div 
-            className="group relative bg-card border border-border rounded-2xl p-8 cursor-pointer hover:border-secondary transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]"
-            onClick={() => setLocation(`/commit-analysis?owner=${owner}&repo=${repo}`)}
-            data-testid="card-commit-analysis"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-secondary/20 flex items-center justify-center mb-6">
-              <GitCommit className="w-8 h-8 text-secondary" />
-            </div>
-            <h2 className="text-2xl font-bold mb-4 tracking-tight">COMMIT ANALYSER</h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
-              Deep-dive into the commit history. Discover development phases, feature clusters, contributor roles, architectural events, and risk commits.
-            </p>
-            <div className="text-secondary font-medium flex items-center group-hover:translate-x-2 transition-transform">
-              Start Analysis &gt;
-            </div>
-          </div>
+            return (
+              <div
+                key={card.id}
+                className={`group relative bg-card border border-border rounded-2xl p-7 cursor-pointer transition-all duration-300 ${hoverBorderClass} ${
+                  card.id === "narrative" ? "md:col-span-2 xl:col-span-1" : ""
+                }`}
+                style={shadowStyle}
+                onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 0 40px -8px rgba(${card.accentHex},0.25)`)}
+                onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}
+                onClick={card.onClick}
+                data-testid={`card-${card.id}`}
+              >
+                {card.badge && (
+                  <span className="absolute top-5 right-5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/25 tracking-wide">
+                    {card.badge}
+                  </span>
+                )}
 
-          <div
-            className="group relative bg-card border border-border rounded-2xl p-8 cursor-pointer hover:border-violet-500 transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] md:col-span-2 xl:col-span-1"
-            onClick={() => setLocation(`/narrative?owner=${owner}&repo=${repo}`)}
-            data-testid="card-narrative"
-          >
-            <div className="absolute top-4 right-4">
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-400 border border-violet-500/30">
-                NEW 🔥
-              </span>
-            </div>
-            <div className="w-16 h-16 rounded-2xl bg-violet-500/20 flex items-center justify-center mb-6">
-              <Sparkles className="w-8 h-8 text-violet-400" />
-            </div>
-            <h2 className="text-2xl font-bold mb-4 tracking-tight">AI NARRATIVE</h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
-              Convert your technical data into polished release notes, standup updates, and resume-ready portfolio descriptions — powered by AI.
-            </p>
-            <div className="text-violet-400 font-medium flex items-center group-hover:translate-x-2 transition-transform">
-              Generate Content &gt;
-            </div>
-          </div>
+                <div className={`w-14 h-14 rounded-2xl ${bgClass} flex items-center justify-center mb-6`}>
+                  <Icon className={`w-7 h-7 ${colorClass}`} />
+                </div>
 
+                <h3 className="text-white mb-3 font-bold tracking-tight">{card.title}</h3>
+
+                <p className="text-muted-foreground text-sm leading-relaxed mb-7">
+                  {card.desc}
+                </p>
+
+                <div className={`${colorClass} text-sm font-semibold flex items-center gap-1.5 group-hover:gap-3 transition-all`}>
+                  {card.cta}
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
