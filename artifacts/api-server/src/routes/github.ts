@@ -1805,11 +1805,27 @@ router.post("/author-profile", async (req, res) => {
 // ── AI Narrative Generator ────────────────────────────────────────────────────
 router.post("/generate-narrative", async (req, res) => {
   try {
-    const { owner, repo, mode, context } = req.body as {
+    const { owner, repo, mode, inputs, context } = req.body as {
       owner: string;
       repo: string;
       mode: "release-notes" | "standup" | "portfolio";
-      context: {
+      inputs?: {
+        // release-notes
+        features?: string[];
+        fixes?: string[];
+        improvements?: string[];
+        modules?: string[];
+        // standup
+        recent_work?: string[];
+        in_progress?: string[];
+        blockers?: string[];
+        contributors?: string[];
+        // portfolio
+        tech_stack?: string[];
+        impact?: string[];
+        role?: string[];
+      };
+      context?: {
         type?: string;
         summary?: string;
         phases?: string[];
@@ -1831,71 +1847,137 @@ router.post("/generate-narrative", async (req, res) => {
     }
 
     const repoLabel = `${owner}/${repo}`;
+    const ctx = context ?? {};
+    const inp = inputs ?? {};
+
+    const fmt = (arr: string[] | undefined, bullet = "•") =>
+      arr?.length ? arr.map(i => `${bullet} ${i}`).join("\n") : "";
+
     let prompt = "";
 
     if (mode === "release-notes") {
-      prompt = `You are a technical writer generating clean release notes for the GitHub repository "${repoLabel}".
+      const useStructured = inp.features?.length || inp.fixes?.length || inp.improvements?.length || inp.modules?.length;
+      if (useStructured) {
+        prompt = `You are a technical writer. Generate polished, professional release notes for the project "${repoLabel}" based on the following structured input.
+
+${inp.features?.length ? `🧩 Feature Clusters (MOST IMPORTANT):\n${fmt(inp.features)}\n` : ""}
+${inp.fixes?.length ? `🐛 Bug Fixes:\n${fmt(inp.fixes)}\n` : ""}
+${inp.improvements?.length ? `⚡ Improvements & Refactors:\n${fmt(inp.improvements)}\n` : ""}
+${inp.modules?.length ? `📁 Affected Modules: ${inp.modules.join(", ")}\n` : ""}
+
+Output format — write clean release notes in markdown:
+## Overview
+(one paragraph summarising what changed and the user value)
+
+## What's New
+(bullet points for each feature, user-facing and clear)
+
+## Bug Fixes
+(bullet points for each fix, include user impact)
+
+## Improvements
+(bullet points for improvements and refactors)
+
+${inp.modules?.length ? `## Affected Modules\n(list the changed areas with brief notes)\n` : ""}
+
+Rules:
+- Write from the user's perspective — describe impact, not just code changes
+- Use clear, concise bullet points
+- Do not include any code snippets
+- Keep each bullet to one sentence`;
+      } else {
+        prompt = `You are a technical writer generating clean release notes for the GitHub repository "${repoLabel}".
 
 Here is what you know about the project's development:
-${context.summary ? `- Overall summary: ${context.summary}` : ""}
-${context.phases?.length ? `- Development phases: ${context.phases.slice(0, 6).join("; ")}` : ""}
-${context.features?.length ? `- Feature areas: ${context.features.slice(0, 8).join(", ")}` : ""}
-${context.architecturalEvents?.length ? `- Key architectural events: ${context.architecturalEvents.slice(0, 5).join("; ")}` : ""}
-${context.recentCommits?.length ? `- Recent commit summaries:\n${context.recentCommits.slice(0, 20).map(c => `  • ${c}`).join("\n")}` : ""}
-${context.waves?.length ? `- Development waves: ${context.waves.slice(0, 4).join(", ")}` : ""}
-${context.totalCommits ? `- Total commits: ${context.totalCommits}` : ""}
+${ctx.summary ? `- Overall summary: ${ctx.summary}` : ""}
+${ctx.phases?.length ? `- Development phases: ${ctx.phases.slice(0, 6).join("; ")}` : ""}
+${ctx.features?.length ? `- Feature areas: ${ctx.features.slice(0, 8).join(", ")}` : ""}
+${ctx.architecturalEvents?.length ? `- Key architectural events: ${ctx.architecturalEvents.slice(0, 5).join("; ")}` : ""}
+${ctx.recentCommits?.length ? `- Recent commit summaries:\n${ctx.recentCommits.slice(0, 20).map(c => `  • ${c}`).join("\n")}` : ""}
+${ctx.totalCommits ? `- Total commits: ${ctx.totalCommits}` : ""}
 
-Write professional release notes in markdown format with these sections:
-## Overview
-## What's New
-## Improvements
-## Technical Changes
-
-Be specific and concrete. Use bullet points. Write as if addressing end users and developers.`;
+Write professional release notes in markdown with sections: ## Overview, ## What's New, ## Improvements, ## Technical Changes
+Use bullet points. Write for end users and developers.`;
+      }
     } else if (mode === "standup") {
-      prompt = `Generate a concise daily standup update for the repository "${repoLabel}".
+      const useStructured = inp.recent_work?.length || inp.in_progress?.length;
+      if (useStructured) {
+        prompt = `Generate a concise, ready-to-read daily standup update for the project "${repoLabel}".
 
-Recent development context:
-${context.recentCommits?.length ? `Recent work:\n${context.recentCommits.slice(0, 15).map(c => `  • ${c}`).join("\n")}` : ""}
-${context.phases?.length ? `Current phase: ${context.phases[context.phases.length - 1] ?? "active development"}` : ""}
-${context.features?.length ? `Feature areas: ${context.features.slice(0, 5).join(", ")}` : ""}
-${context.summary ? `Project context: ${context.summary}` : ""}
+${inp.recent_work?.length ? `📅 Recent Work Done (last 1–2 days):\n${fmt(inp.recent_work)}\n` : ""}
+${inp.in_progress?.length ? `🧩 Currently In Progress:\n${fmt(inp.in_progress)}\n` : ""}
+${inp.blockers?.length ? `⚠️ Blockers / Issues:\n${fmt(inp.blockers)}\n` : ""}
+${inp.contributors?.length ? `👤 Contributor Activity:\n${fmt(inp.contributors)}\n` : ""}
 
-Format the standup update exactly like this:
+Format the standup update EXACTLY like this — keep each section short and readable:
+
+✅ Yesterday:
+(bullet points of what was completed — directly from "Recent Work Done")
+
+🔨 Today:
+(bullet points of active work — directly from "Currently In Progress")
+
+🚧 Blockers:
+(bullet points of blockers, or "None" if not provided)
+
+${inp.contributors?.length ? `👥 Contributors:\n(brief summary of who did what)\n` : ""}
+
+Rules:
+- Keep it short and conversational — ready to read out loud
+- Do not add anything not mentioned in the inputs
+- Do not pad with filler text`;
+      } else {
+        prompt = `Generate a concise daily standup update for the repository "${repoLabel}".
+
+${ctx.recentCommits?.length ? `Recent work:\n${ctx.recentCommits.slice(0, 15).map(c => `  • ${c}`).join("\n")}` : ""}
+${ctx.phases?.length ? `Current phase: ${ctx.phases[ctx.phases.length - 1] ?? "active development"}` : ""}
+${ctx.summary ? `Project context: ${ctx.summary}` : ""}
+
+Format:
 ✅ Yesterday / Recently Done:
-(bullet points of what was completed)
-
 🔨 Currently In Progress:
-(bullet points of what is ongoing)
-
 📋 Up Next:
-(bullet points of what is planned)
-
 🚧 Blockers / Notes:
-(any risks or blockers from the commit history, or "None" if none)
 
-Keep it short, practical, and ready to read out loud in a standup meeting.`;
+Keep it short and ready to read out loud.`;
+      }
     } else {
-      prompt = `Write a compelling portfolio/resume description for the project "${repoLabel}".
+      const useStructured = inp.features?.length || inp.tech_stack?.length || inp.impact?.length;
+      if (useStructured) {
+        prompt = `Write a compelling, resume-ready portfolio description for the project "${repoLabel}".
 
-Project details:
-${context.language ? `- Primary language: ${context.language}` : ""}
-${context.stars !== undefined ? `- GitHub stars: ${context.stars}` : ""}
-${context.summary ? `- Description: ${context.summary}` : ""}
-${context.modules?.length ? `- Key modules/features: ${context.modules.slice(0, 6).join(", ")}` : ""}
-${context.features?.length ? `- Feature areas: ${context.features.slice(0, 6).join(", ")}` : ""}
-${context.dependencies?.length ? `- Tech stack: ${context.dependencies.slice(0, 10).join(", ")}` : ""}
-${context.phases?.length ? `- Development arc: ${context.phases.slice(0, 4).join(" → ")}` : ""}
-${context.totalCommits ? `- Scale: ${context.totalCommits} commits` : ""}
+${inp.features?.length ? `🧩 Key Features Built:\n${fmt(inp.features)}\n` : ""}
+${inp.tech_stack?.length ? `⚙️ Tech Stack: ${inp.tech_stack.join(", ")}\n` : ""}
+${inp.impact?.length ? `🔥 Impact & Outcomes (MOST IMPORTANT — reflect these strongly in the output):\n${fmt(inp.impact)}\n` : ""}
+${inp.role?.length ? `🧠 Role / Contribution:\n${fmt(inp.role)}\n` : ""}
 
-Output format — write exactly 3 resume bullet points:
-• [Strong action verb] [specific technical accomplishment with technologies and scale]
-• [Strong action verb] [specific feature or architecture with business/user impact]  
-• [Strong action verb] [specific metric or outcome that demonstrates quality/scale]
+Output EXACTLY in this format:
 
-Then write a 2-sentence "Project Summary" paragraph for a portfolio website.
+Resume Bullets:
+• [Strong action verb] [what you built] using [tech], [impact/metric]
+• [Strong action verb] [feature or system] that [user or business outcome]
+• [Strong action verb] [technical accomplishment] resulting in [measurable result or quality improvement]
 
-Use powerful action verbs (Engineered, Architected, Built, Developed, Implemented, Designed). Be specific about technologies and impact.`;
+Portfolio Summary:
+[Two compelling sentences for a portfolio website that highlight the project's purpose, your technical contribution, and the impact.]
+
+Rules:
+- Use powerful action verbs: Engineered, Architected, Built, Developed, Implemented, Designed, Delivered
+- Impact & Outcomes MUST be reflected prominently in the resume bullets
+- Be specific — mention technologies, numbers, and user impact
+- Do NOT use generic filler like "a robust application" or "modern tech stack"`;
+      } else {
+        prompt = `Write a compelling portfolio/resume description for the project "${repoLabel}".
+
+${ctx.language ? `- Primary language: ${ctx.language}` : ""}
+${ctx.summary ? `- Description: ${ctx.summary}` : ""}
+${ctx.modules?.length ? `- Key modules: ${ctx.modules.slice(0, 6).join(", ")}` : ""}
+${ctx.dependencies?.length ? `- Tech stack: ${ctx.dependencies.slice(0, 10).join(", ")}` : ""}
+${ctx.totalCommits ? `- Scale: ${ctx.totalCommits} commits` : ""}
+
+Write 3 resume bullet points then a 2-sentence portfolio summary paragraph.
+Use strong action verbs (Engineered, Architected, Built, Developed, Implemented, Designed).`;
+      }
     }
 
     const completion = await openai.chat.completions.create({
